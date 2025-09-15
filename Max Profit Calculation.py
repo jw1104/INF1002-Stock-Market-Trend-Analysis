@@ -18,8 +18,7 @@ start_date_x_days_before = get_date_x_days_before(start_date, num_periods*2)
 
 for interval in intervals:
     print(f"\nDownloading data for interval: {interval}")
-    stock_data = yf.download(stock, start=start_date_x_days_before, end=end_date, interval=interval)
-    print(stock_data.head())
+    stock_data = yf.ticker(stock).history(period=interval)
 
     # Find max profit (buy low, sell high, one transaction)
     #For each interval, it will show the best buy/sell times, prices, and the profit you could have made.
@@ -40,7 +39,7 @@ for interval in intervals:
         if max_profit > 0 and buy_time is not None and sell_time is not None:
             buy_date = stock_data.index[buy_time]
             sell_date = stock_data.index[sell_time]
-            print(f"Max profit for {interval}: ${max_profit:.2f} (Buy at {min_price:.2f} on {buy_date.strftime('%Y-%m-%d %H:%M:%S')}, Sell at {close_prices[sell_time]:.2f} on {sell_date.strftime('%Y-%m-%d %H:%M:%S')})")
+            print(f"Max profit for {interval}: ${max_profit:.2f} (Buy at {min_price:.2f} on {buy_date}, Sell at {close_prices[sell_time]:.2f} on {sell_date})")
         else:
             print(f"No profit opportunity for {interval} interval.")
     else:
