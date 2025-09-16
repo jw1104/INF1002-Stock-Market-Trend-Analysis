@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Stock Market Analysis</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <style>
+        /* Table alignment */
+        table th, table td {
+            text-align: left !important;  /* default left */
+        }
+        /* Right-align numeric columns: Open, High, Low, Close, Volume */
+        table td:nth-child(2),
+        table td:nth-child(3),
+        table td:nth-child(4),
+        table td:nth-child(5),
+        table td:nth-child(6) {
+            text-align: right !important;
+        }
+    </style>
+</head>
+<body class="p-4">
+<div class="container">
+    <h1 class="mb-4">📈 Stock Market Dashboard</h1>
+
+    <form method="POST" class="mb-3">
+        <input type="text" name="symbol" placeholder="Enter stock symbol (e.g. AAPL)"
+               class="form-control mb-2" value="{{ symbol }}">
+
+        <label>Start Date:</label>
+        <input type="date" name="start" class="form-control mb-2" value="{{ start }}">
+
+        <label>End Date:</label>
+        <input type="date" name="end" class="form-control mb-2" value="{{ end }}">
+
+        <button type="submit" class="btn btn-primary">Get Data</button>
+    </form>
+
+    <div class="table-responsive">
+        {% if stock_data %}
+            <h3>Stock Data for {{ symbol }}</h3>
+            {{ stock_data|safe }}
+        {% endif %}
+    </div>
+
+    <div class="mt-4">
+        {% if chart_data %}
+            <h3>Closing Price Chart</h3>
+            <div id="chart" style="height:400px;"></div>
+            <script>
+                var data = [{
+                    x: {{ chart_data.dates|tojson }},
+                    y: {{ chart_data.close|tojson }},
+                    type: 'scatter',
+                    mode: 'lines+markers',
+                    line: {color: 'blue'}
+                }];
+                var layout = {
+                    title: 'Closing Prices for {{ symbol }}',
+                    xaxis: { title: 'Date' },
+                    yaxis: { title: 'Price (USD)' }
+                };
+                Plotly.newPlot('chart', data, layout);
+            </script>
+        {% endif %}
+    </div>
+</div>
+</body>
+</html>
