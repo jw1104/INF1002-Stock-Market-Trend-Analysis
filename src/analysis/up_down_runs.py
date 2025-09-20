@@ -1,21 +1,17 @@
 import yfinance as yf
 import pandas as pd
 import numpy as np
-from utils.clean_data import clean_data
-
-def calculate_price_changes(prices):
-    price_changes = []
-    
-    for i in range(1, len(prices)):
-        price_change = prices[i] - prices[i-1]
-        price_changes.append(price_change)
-    return price_changes
+from .data_fetcher import data_fetcher
+from .daily_returns import daily_returns
 
 
 def calculate_directions(price_changes):
     directions = []
     
     for change in price_changes:
+        if pd.isna(change):
+            continue
+        
         if change > 0:
             directions.append('up')
         elif change < 0:
@@ -53,8 +49,17 @@ def calculate_run_stats(runs, target_direction):
         'longest_streak': max(filtered_run) if filtered_run else 0,
         'runs': filtered_run
     }
+    
+ 
+def analyze_runs(data):
+    price_changes = daily_returns(data)
+    directions = calculate_directions(price_changes)
+    runs = calculate_runs(directions)
+    
+    return runs
+   
 
-def analyze_price_runs(data):
+def analysis_summary(runs):
     """
     Analyzes given data to obtain run statistics in 3 different directions (up, down, flat)
     
@@ -65,21 +70,23 @@ def analyze_price_runs(data):
     dictionary containing run statistics
     
     """
+    total_trading_days = 0
     
-    prices = clean_data(data)
-    price_changes = calculate_price_changes(prices)
-    directions = calculate_directions(price_changes)
-    runs = calculate_runs(directions)
-    
+    # calculate number of trading days
+    for run in runs:
+        total_trading_days += run[1]
+        
     # create dictionary with run statistics
     results = {
-        'total_trading_days': len(prices),
+        'total_trading_days': total_trading_days,
         'upward_runs': calculate_run_stats(runs, 'up'),
         'downward_runs': calculate_run_stats(runs, 'down'),
         'flat_runs': calculate_run_stats(runs, 'flat')
     }
     
     return results
+
+
 
 
 def print_run_summary(results):
@@ -110,9 +117,9 @@ def print_run_summary(results):
 
 if __name__ == "__main__":
     try: 
-        ticker = yf.Ticker('AAPL')
-        data = ticker.history('1y')
-        results = analyze_price_runs(data['Close'])
+        data = data_fetcher("AAPL", "3y")
+        runs = analyze_runs(data)
+        results = analysis_summary(runs)
         print_run_summary(results)
         
     except ValueError as e:

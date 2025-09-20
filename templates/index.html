@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Stock Market Analysis</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+</head>
+<body class="p-4">
+<div class="container">
+    <h1 class="mb-4">📈 Stock Market Trend Analysis</h1>
+
+    <form method="POST" class="mb-3">
+        <input type="text" name="symbol" placeholder="Enter stock symbol (e.g. AAPL)"
+               class="form-control mb-2" value="{{ symbol }}">
+
+        <label>Period:</label>
+        <input type="text" name="period" class="form-control mb-2" value="{{ period }}">
+
+        <label>SMA Window:</label>
+        <input type="text" name="sma_window" class="form-control mb-2" value="{{ sma_window }}" required>
+
+        <button type="submit" class="btn btn-primary">Get Data</button>
+    </form>
+
+    <div class="mt-4">
+        {% if chart_data %}
+            <div id="chart" style="width:900px; height:600px ;"></div>
+            <script>
+                var data = [
+                    {
+                        x: {{ chart_data.dates|tojson }},
+                        y: {{ chart_data.close|tojson }},
+                        type: 'scatter',
+                        mode: 'lines',
+                        name: 'Price',
+                        line: {color: 'blue'}
+                    },
+                    {
+                        x: {{ chart_data.dates|tojson }},
+                        y: {{ chart_data.sma|tojson }},
+                        type: 'scatter',
+                        mode: 'lines',
+                        name: 'SMA',
+                        line: {color: 'red'}
+                    }
+                ];
+                var layout = {
+                    title: 'Closing Prices vs SMA for {{ symbol }}',
+                    xaxis: { title: 'Date' },
+                    yaxis: { title: 'Price (USD)' }
+                };
+                Plotly.newPlot('chart', data, layout);
+            </script>
+        {% endif %}
+    </div>
+
+    <div class="mt-4">
+        {% if chart_html %}
+        <div id="direction-chart">
+            {{ chart_html|safe }}
+        </div>
+        {% endif %}
+    </div>
+</div>
+</body>
+</html>
