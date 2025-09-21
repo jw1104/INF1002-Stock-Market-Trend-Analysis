@@ -1,45 +1,58 @@
+import datetime as dt
 import yfinance as yf
 import pandas as pd
 
+def get_date_x_days_before(date_string, num_days_before):
+    date_object = dt.datetime.strptime(date_string, "%Y-%m-%d")
+    new_date = date_object - dt.timedelta(days=num_days_before)
+    new_date_string = new_date.strftime("%Y-%m-%d")
+    return new_date_string
 
-def stock_percentage_change(ticker, period):
-    """
-    Fetches stock data from Yahoo Finance and calculates day-to-day % change.
+# Ask user for stock symbol and number of days
+stock = "AAPL"
+num_days = int(input("Enter number of days to check: "))
 
-    Parameters:
-        ticker (str): Stock symbol (e.g., "AAPL", "TSLA").
-        period (str): Time period (e.g., "5d", "1mo", "3mo", "1y").
+# Set end date as today
+end_date = dt.datetime.today().strftime("%Y-%m-%d")
 
-    Returns:
-        DataFrame: Date, Close price, and % Change
-    """
-    # Download stock data
-    data = yf.download(symbol, period=period)
+# Compute start date by subtracting num_days
+start_date = get_date_x_days_before(end_date, num_days)
 
-    if data.empty:
-        print("No data found. Check the ticker symbol or period.")
-        return None
+# Grab the stock data
+stock_data = yf.download(stock, start=start_date, end=end_date)
 
-    # Keep only the closing prices
-    data = data[["Close"]].copy()
+# Keep only the closing value data
+stock_data = stock_data[["Close"]].round(2)
 
-    # Calculate daily % change
-    data["% Change"] = data["Close"].pct_change() * 100
+# Remove the extra early dates
+stock_data = stock_data[start_date:]
 
-    # Round values
-    data["Close"] = data["Close"].round(2)
-    data["% Change"] = data["% Change"].round(2)
+# Reset index to make Date a column instead of index
+stock_data.reset_index(inplace=True)
 
-    # Format with $ and %
-    data["Close"] = data["Close"].map(lambda x: f"${x:.2f}")
-    data["% Change"] = data["% Change"].map(lambda x: f"{x:.2f}%" if pd.notnull(x) else "N/A")
+# Rename columns
+stock_data.columns = ['Date', 'Closing']
 
-    return data
+#Look through all the rows in stock_data
+for i in range(len(stock_data)):
+    if i == 0:
+        # First row has no previous day to compare with
+        stock_data.at[i, '% Change'] = None
+    else:
+        prev_close = stock_data.at[i-1, 'Closing'] #Get the previous day data
+        current_close = stock_data.at[i, 'Closing'] #Get the current day data
+        percent_change = ((current_close - prev_close) / prev_close) * 100
+        stock_data.at[i, '% Change'] = round(percent_change, 2)
 
+#Convert the value return to a string that has + and % sign and missing value as N/A
+stock_data['% Change'] = stock_data['% Change'].apply(
+    lambda x: f"{x:+.2f}%" if pd.notna(x) else "N/A"
+)
 
-# Example usage:
-if __name__ == "__main__":
-    symbol = input("Enter stock symbol (e.g., AAPL, TSLA, MSFT): ").upper()
-    period = input("Enter period (e.g., 5d, 1mo, 3mo, 1y): ")
-    result = stock_percentage_change(symbol, period)
-    print(result)
+# Set pandas display options for left alignment
+pd.set_option('display.colheader_justify', 'left')
+pd.set_option('display.unicode.east_asian_width', False)
+
+# Print the formatted output
+print(f"Ticker        {stock}")
+print(stock_data.to_string(index=False, justify='left'))
