@@ -31,6 +31,12 @@ def add_percent_change_column(stock_data):
         lambda x: f"{x:+.2f}%" if pd.notna(x) else "N/A"
     )
 
+    # Set pandas display options for left alignment
+    pd.set_option('display.colheader_justify', 'left')
+    pd.set_option('display.unicode.east_asian_width', False)
+
+    percent_data = percent_data.to_string(index=False, justify='left')
+
     return percent_data
 
 
@@ -55,10 +61,5 @@ stock_data = stock_data[start_date:]
 
 stock_data = add_percent_change_column(stock_data)
 
-# Set pandas display options for left alignment
-pd.set_option('display.colheader_justify', 'left')
-pd.set_option('display.unicode.east_asian_width', False)
-
-# Print the formatted output
 print(f"Ticker        {stock}")
-print(stock_data.to_string(index=False, justify='left'))
+print(stock_data)
