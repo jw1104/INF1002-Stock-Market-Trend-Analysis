@@ -8,6 +8,32 @@ def get_date_x_days_before(date_string, num_days_before):
     new_date_string = new_date.strftime("%Y-%m-%d")
     return new_date_string
 
+def add_percent_change_column(stock_data):
+    percent_data = stock_data.copy()
+
+    # Reset index to make Date a column instead of index
+    percent_data.reset_index(inplace=True)
+
+    # Rename columns
+    percent_data.columns = ['Date', 'Closing']
+
+    for i in range(len(percent_data)):
+        if i == 0:
+            # First row has no previous day to compare with
+            percent_data.at[i, '% Change'] = None
+        else:
+            prev_close = percent_data.at[i - 1, 'Closing']  # Get the previous day data
+            current_close = percent_data.at[i, 'Closing']  # Get the current day data
+            percent_change = ((current_close - prev_close) / prev_close) * 100
+            percent_data.at[i, '% Change'] = round(percent_change, 2)
+    # Convert the value return to a string that has + and % sign and missing value as N/A
+    percent_data['% Change'] = percent_data['% Change'].apply(
+        lambda x: f"{x:+.2f}%" if pd.notna(x) else "N/A"
+    )
+
+    return percent_data
+
+
 # Ask user for stock symbol and number of days
 stock = "AAPL"
 num_days = int(input("Enter number of days to check: "))
@@ -27,27 +53,7 @@ stock_data = stock_data[["Close"]].round(2)
 # Remove the extra early dates
 stock_data = stock_data[start_date:]
 
-# Reset index to make Date a column instead of index
-stock_data.reset_index(inplace=True)
-
-# Rename columns
-stock_data.columns = ['Date', 'Closing']
-
-#Look through all the rows in stock_data
-for i in range(len(stock_data)):
-    if i == 0:
-        # First row has no previous day to compare with
-        stock_data.at[i, '% Change'] = None
-    else:
-        prev_close = stock_data.at[i-1, 'Closing'] #Get the previous day data
-        current_close = stock_data.at[i, 'Closing'] #Get the current day data
-        percent_change = ((current_close - prev_close) / prev_close) * 100
-        stock_data.at[i, '% Change'] = round(percent_change, 2)
-
-#Convert the value return to a string that has + and % sign and missing value as N/A
-stock_data['% Change'] = stock_data['% Change'].apply(
-    lambda x: f"{x:+.2f}%" if pd.notna(x) else "N/A"
-)
+stock_data = add_percent_change_column(stock_data)
 
 # Set pandas display options for left alignment
 pd.set_option('display.colheader_justify', 'left')
