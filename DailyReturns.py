@@ -15,15 +15,15 @@ def add_percent_change_column(stock_data):
     percent_data.reset_index(inplace=True)
 
     # Rename columns
-    percent_data.columns = ['Date', 'Closing']
+    percent_data.columns = ['Date', 'Close', 'High', 'Low', 'Open', 'Volume', "SMA"]
 
     for i in range(len(percent_data)):
         if i == 0:
             # First row has no previous day to compare with
             percent_data.at[i, '% Change'] = None
         else:
-            prev_close = percent_data.at[i - 1, 'Closing']  # Get the previous day data
-            current_close = percent_data.at[i, 'Closing']  # Get the current day data
+            prev_close = percent_data.at[i - 1, 'SMA']  # Get the previous day data
+            current_close = percent_data.at[i, 'SMA']  # Get the current day data
             percent_change = ((current_close - prev_close) / prev_close) * 100
             percent_data.at[i, '% Change'] = round(percent_change, 2)
     # Convert the value return to a string that has + and % sign and missing value as N/A
@@ -42,24 +42,22 @@ def add_percent_change_column(stock_data):
 
 # Ask user for stock symbol and number of days
 stock = "AAPL"
-num_days = int(input("Enter number of days to check: "))
+start_date = "2015-01-01"
+end_date = "2025-08-31"
+num_periods = 20
 
-# Set end date as today
-end_date = dt.datetime.today().strftime("%Y-%m-%d")
-
-# Compute start date by subtracting num_days
-start_date = get_date_x_days_before(end_date, num_days)
+# Get a few days before the start date to accommodate the period size
+start_date_x_days_before = get_date_x_days_before(start_date, num_periods*2)
 
 # Grab the stock data
-stock_data = yf.download(stock, start=start_date, end=end_date)
+stock_data = yf.download(stock, start=start_date, end=end_date).round(2)
 
-# Keep only the closing value data
-stock_data = stock_data[["Close"]].round(2)
+# Calculate simple moving average
+stock_data["SMA"] = (stock_data["Close"].rolling(window=num_periods).mean()).round(2)
 
 # Remove the extra early dates
 stock_data = stock_data[start_date:]
 
 stock_data = add_percent_change_column(stock_data)
 
-print(f"Ticker        {stock}")
 print(stock_data)
