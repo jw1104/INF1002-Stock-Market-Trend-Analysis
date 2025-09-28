@@ -6,6 +6,9 @@ from .daily_returns import daily_returns
 
 
 def calculate_directions(price_changes):
+    if not price_changes:
+        raise ValueError("No data for analysis")
+    
     directions = []
     
     for change in price_changes:
@@ -23,6 +26,9 @@ def calculate_directions(price_changes):
     
 
 def calculate_runs(directions):
+    if not directions:
+        raise ValueError("No data for analysis")
+    
     runs = []
     run_streak = 1
     current_direction = directions[0]

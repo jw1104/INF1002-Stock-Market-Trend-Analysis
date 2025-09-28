@@ -1,9 +1,9 @@
 from flask import Flask, render_template, request
 import pandas as pd
-from src.analysis.data_fetcher import data_fetcher
-from src.analysis.simple_moving_average import simple_moving_average
-from src.analysis.up_down_runs import calculate_directions, calculate_runs
-from src.analysis.daily_returns import daily_returns
+from INF1002_Stock_Market_Trend_Analysis.src.analysis.data_fetcher import data_fetcher
+from INF1002_Stock_Market_Trend_Analysis.src.analysis.simple_moving_average import simple_moving_average
+from INF1002_Stock_Market_Trend_Analysis.src.analysis.up_down_runs import calculate_directions, calculate_runs
+from INF1002_Stock_Market_Trend_Analysis.src.analysis.daily_returns import daily_returns
 import plotly.graph_objs as go
 
 app = Flask(__name__)
@@ -39,7 +39,7 @@ def index():
             fig = go.Figure()
 
             returns = daily_returns(data)
-            run_directions = calculate_directions(returns)
+            run_directions = calculate_directions(returns.tolist())
             runs = calculate_runs(run_directions)
 
             colors = []
@@ -55,9 +55,6 @@ def index():
                         'streak': streak,
                         'position_in_streak': i + 1
                     })
-
-            print(f"Total segments: {len(colors)}")
-            print(f"Returns length: {len(returns)}")
 
             max_segments = min(len(returns), len(colors), len(dates) - 1, len(closing_price) - 1)
 
