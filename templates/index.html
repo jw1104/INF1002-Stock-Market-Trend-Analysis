@@ -49,16 +49,48 @@
         </div>
 
         <div class="mb-3">
-            <label for="sma_window" class="form-label">SMA Window (days)</label>
-            <input type="number" 
-                   id="sma_window"
-                   name="sma_window" 
-                   class="form-control" 
-                   value="{{ sma_window }}"
-                   placeholder="e.g. 20"
-                   min="1"
-                   required>
-            <small class="form-text text-muted">Number of days for Simple Moving Average calculation</small>
+            <label class="form-label fw-bold">Simple Moving Averages (SMA)</label>
+            <div class="row">
+                <div class="col-md-4">
+                    <label for="sma_short" class="form-label">Short-term SMA</label>
+                    <input type="number" 
+                           id="sma_short"
+                           name="sma_short" 
+                           class="form-control" 
+                           value="{{ sma_short if sma_short else '20' }}"
+                           placeholder="20"
+                           min="1"
+                           required>
+                    <small class="form-text text-muted">Fast-moving (e.g., 20 days)</small>
+                </div>
+                <div class="col-md-4">
+                    <label for="sma_medium" class="form-label">Medium-term SMA</label>
+                    <input type="number" 
+                           id="sma_medium"
+                           name="sma_medium" 
+                           class="form-control" 
+                           value="{{ sma_medium if sma_medium else '50' }}"
+                           placeholder="50"
+                           min="1"
+                           required>
+                    <small class="form-text text-muted">Intermediate (e.g., 50 days)</small>
+                </div>
+                <div class="col-md-4">
+                    <label for="sma_long" class="form-label">Long-term SMA</label>
+                    <input type="number" 
+                           id="sma_long"
+                           name="sma_long" 
+                           class="form-control" 
+                           value="{{ sma_long if sma_long else '200' }}"
+                           placeholder="200"
+                           min="1"
+                           required>
+                    <small class="form-text text-muted">Slow-moving (e.g., 200 days)</small>
+                </div>
+            </div>
+            <small class="form-text text-muted mt-2 d-block">
+                <strong>Note:</strong> Values must be in ascending order (Short &lt; Medium &lt; Long)
+            </small>
         </div>
 
         <button type="submit" class="btn btn-primary">Analyze Stock</button>
@@ -71,12 +103,21 @@
     </div>
     {% endif %}
 
-    <!-- Price vs SMA Chart -->
+    <!-- Price vs Multiple SMAs Chart -->
     {% if price_sma_chart_html %}
     <div class="chart-container">
-        <h3 class="mb-3">Closing Price vs Simple Moving Average</h3>
+        <h3 class="mb-3">Closing Price vs Multiple Simple Moving Averages</h3>
         <div id="price-sma-chart">
             {{ price_sma_chart_html|safe }}
+        </div>
+        <div class="mt-3">
+            <p class="text-muted">
+                <strong>Crossover Signals:</strong><br>
+                <span style="color: gold;">★ Golden Cross:</span> Medium SMA crosses above Long SMA (Strong bullish signal)<br>
+                <span style="color: darkred;">✕ Death Cross:</span> Medium SMA crosses below Long SMA (Strong bearish signal)<br>
+                <span style="color: limegreen;">↑ Bullish Cross:</span> Short SMA crosses above Medium SMA<br>
+                <span style="color: orangered;">↓ Bearish Cross:</span> Short SMA crosses below Medium SMA
+            </p>
         </div>
     </div>
     {% endif %}
@@ -103,13 +144,20 @@
     {% if not price_sma_chart_html and not error_message %}
     <div class="alert alert-info mt-4" role="alert">
         <h4 class="alert-heading">Welcome!</h4>
-        <p>Enter a stock symbol, period, and SMA window to begin your analysis.</p>
+        <p>Enter a stock symbol, period, and three SMA windows to begin your analysis.</p>
         <hr>
         <p class="mb-0">The application will display two charts:</p>
         <ul>
-            <li><strong>Closing Price vs SMA:</strong> Shows the stock's closing prices compared to its Simple Moving Average</li>
+            <li><strong>Multiple SMAs with Crossovers:</strong> Shows the stock's closing prices compared to three Simple Moving Averages with crossover signals:
+                <ul>
+                    <li><strong>Golden Cross:</strong> Medium-term SMA crosses above long-term SMA (strong buy signal)</li>
+                    <li><strong>Death Cross:</strong> Medium-term SMA crosses below long-term SMA (strong sell signal)</li>
+                    <li><strong>Bullish/Bearish Crosses:</strong> Short-term SMA crosses with medium-term SMA</li>
+                </ul>
+            </li>
             <li><strong>Run Direction Analysis:</strong> Visualizes consecutive upward and downward price movements</li>
         </ul>
+        <p class="mt-2"><strong>Recommended SMA values:</strong> 20 (short), 50 (medium), 200 (long)</p>
     </div>
     {% endif %}
 </div>

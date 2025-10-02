@@ -13,13 +13,17 @@ def index():
     run_direction_chart_html = None
     symbol = ""
     period = ""
-    sma_window = ""
+    sma_short = ""
+    sma_medium = ""
+    sma_long = ""
     error_message = None
 
     if request.method == "POST":
         symbol = request.form.get("symbol", "").upper()
         period = request.form.get("period", "").lower()
-        sma_window = request.form.get("sma_window", "")
+        sma_short = request.form.get("sma_short", "")
+        sma_medium = request.form.get("sma_medium", "")
+        sma_long = request.form.get("sma_long", "")
 
         try:
             # Validate inputs
@@ -27,33 +31,53 @@ def index():
                 raise ValueError("Stock symbol is required")
             if not period:
                 raise ValueError("Period is required")
-            if not sma_window:
-                raise ValueError("SMA window is required")
+            if not sma_short or not sma_medium or not sma_long:
+                raise ValueError("All SMA windows are required")
             
-            sma_window_int = int(sma_window)
+            sma_short_int = int(sma_short)
+            sma_medium_int = int(sma_medium)
+            sma_long_int = int(sma_long)
             
-            if sma_window_int <= 0:
-                raise ValueError("SMA window must be a positive number")
+            if sma_short_int <= 0 or sma_medium_int <= 0 or sma_long_int <= 0:
+                raise ValueError("SMA windows must be positive numbers")
+            
+            if not (sma_short_int < sma_medium_int < sma_long_int):
+                raise ValueError("SMA windows must be in ascending order (Short < Medium < Long)")
             
             # Fetch stock data
             data = data_fetcher(symbol, period)
+            
+            if data is None or data.empty:
+                raise ValueError(f"No data found for symbol {symbol}")
             
             # Prepare data for charts
             closing_prices = data["Close"].tolist()
             dates = data.index.strftime("%Y-%m-%d").tolist()
             
-            # Validate SMA window size
-            if sma_window_int > len(closing_prices):
-                raise ValueError(f"SMA window ({sma_window_int}) cannot be larger than data length ({len(closing_prices)})")
+            # Validate SMA window sizes
+            max_window = max(sma_short_int, sma_medium_int, sma_long_int)
+            if max_window > len(closing_prices):
+                raise ValueError(f"Largest SMA window ({max_window}) cannot be larger than data length ({len(closing_prices)})")
             
-            # Calculate SMA
-            sma_values = simple_moving_average(closing_prices, sma_window_int)
+            # Calculate multiple SMAs
+            sma_short_values = simple_moving_average(closing_prices, sma_short_int)
+            sma_medium_values = simple_moving_average(closing_prices, sma_medium_int)
+            sma_long_values = simple_moving_average(closing_prices, sma_long_int)
             
-            # Pad SMA values to match dates length (add None for initial periods)
-            sma_padded = [None] * (sma_window_int - 1) + sma_values
+            # Pad SMA values to match dates length
+            sma_short_padded = [None] * (sma_short_int - 1) + sma_short_values
+            sma_medium_padded = [None] * (sma_medium_int - 1) + sma_medium_values
+            sma_long_padded = [None] * (sma_long_int - 1) + sma_long_values
             
-            # Create price vs SMA chart
-            price_sma_chart_html = create_price_sma_chart(dates, closing_prices, sma_padded, symbol)
+            # Create dictionary of SMA data
+            sma_data = {
+                'short': {'values': sma_short_padded, 'period': sma_short_int},
+                'medium': {'values': sma_medium_padded, 'period': sma_medium_int},
+                'long': {'values': sma_long_padded, 'period': sma_long_int}
+            }
+            
+            # Create price vs multiple SMA chart
+            price_sma_chart_html = create_price_sma_chart(dates, closing_prices, sma_data, symbol)
             
             # Calculate daily returns
             returns = daily_returns(data)
@@ -72,7 +96,9 @@ def index():
                            run_direction_chart_html=run_direction_chart_html,
                            symbol=symbol,
                            period=period,
-                           sma_window=sma_window,
+                           sma_short=sma_short,
+                           sma_medium=sma_medium,
+                           sma_long=sma_long,
                            error_message=error_message)
 
 
