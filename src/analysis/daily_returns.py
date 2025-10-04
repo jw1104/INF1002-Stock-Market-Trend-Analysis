@@ -1,30 +1,25 @@
 import pandas as pd
 
-def daily_returns(stock_data):
+def daily_returns(closing_prices):
     """
     Calculate the daily percentage returns based on closing prices.
    
     Args:
-        stock_data: DataFrame with stock data including Close column
+        closing_prices: Series of closing prices
        
     Returns:
         list: List containing percentage changes as numeric values
     """
-    percent_data = stock_data.copy()
-   
-    # Reset index to make Date a column instead of index
-    percent_data.reset_index(inplace=True)
-   
-    # Calculate percent change based on Close prices
+    
     percent_changes = []
    
-    for i in range(len(percent_data)):
+    for i in range(len(closing_prices)):
         if i == 0:
             # First row has no previous day to compare with
             percent_changes.append(None)
         else:
-            prev_close = percent_data.at[i - 1, 'Close']  # Get the previous day's close
-            current_close = percent_data.at[i, 'Close']  # Get the current day's close
+            prev_close = closing_prices[i - 1]  # Get the previous day's close
+            current_close = closing_prices[i]  # Get the current day's close
            
             # Handle cases where Close might be None or NaN
             if pd.notna(prev_close) and pd.notna(current_close) and prev_close != 0:
@@ -45,14 +40,14 @@ if __name__ == "__main__":
 
 
     # Grab the stock data
-    stock_data = yf.download(stock, start=start_date, end=end_date).round(2)
+    stock_data = yf.Ticker(stock).history('3y')
 
     # Calculate simple moving average
-    stock_data["SMA"] = (stock_data["Close"].rolling(window=num_periods).mean()).round(2)
+    # stock_data["SMA"] = (stock_data["Close"].rolling(window=num_periods).mean()).round(2)
 
     # Remove the extra early dates
-    stock_data = stock_data[start_date:]
+    # stock_data = stock_data[start_date:]
 
-    stock_data = daily_returns(stock_data)
+    stock_data = daily_returns(stock_data["Close"])
 
     print(stock_data)

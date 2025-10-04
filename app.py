@@ -80,7 +80,7 @@ def index():
             price_sma_chart_html = create_price_sma_chart(dates, closing_prices, sma_data, symbol)
             
             # Calculate daily returns
-            returns = daily_returns(data)
+            returns = daily_returns(closing_prices)
             
             # Create run direction chart
             run_direction_chart_html = create_run_direction_chart(dates, closing_prices, returns, symbol)
