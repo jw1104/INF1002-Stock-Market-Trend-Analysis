@@ -1,7 +1,6 @@
 import plotly.graph_objects as go
-from INF1002_Stock_Market_Trend_Analysis.src.analysis.up_down_runs import calculate_directions, calculate_runs
 
-def create_run_direction_chart(dates, closing_prices, returns, symbol):
+def create_run_direction_chart(dates, closing_prices, returns, runs, symbol):
     """
     Create a Plotly chart showing price movements colored by run direction.
     
@@ -15,10 +14,6 @@ def create_run_direction_chart(dates, closing_prices, returns, symbol):
         HTML string of the Plotly chart
     """
     fig = go.Figure()
-    
-    # Calculate run directions and streaks
-    run_directions = calculate_directions(returns)
-    runs = calculate_runs(run_directions)
     
     # Build color and streak info arrays
     colors = []
@@ -93,11 +88,10 @@ def create_run_direction_chart(dates, closing_prices, returns, symbol):
         ))
     
     fig.update_layout(
-        title=f'Closing Price with Run Directions for {symbol}',
+        title=f'Closing Price over time with Run Directions for {symbol}',
         xaxis_title='Date',
         yaxis_title='Price (USD)',
         hovermode='closest',
-        width=1000,
         height=600
     )
     

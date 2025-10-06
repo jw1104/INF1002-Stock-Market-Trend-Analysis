@@ -2,8 +2,12 @@ from flask import Flask, render_template, request
 from INF1002_Stock_Market_Trend_Analysis.src.analysis.data_fetcher import data_fetcher
 from INF1002_Stock_Market_Trend_Analysis.src.analysis.simple_moving_average import simple_moving_average
 from INF1002_Stock_Market_Trend_Analysis.src.analysis.daily_returns import daily_returns
+from INF1002_Stock_Market_Trend_Analysis.src.analysis.up_down_runs import calculate_directions, calculate_runs, analyze_runs
+from INF1002_Stock_Market_Trend_Analysis.src.analysis.volatility import analyze_volatility
 from INF1002_Stock_Market_Trend_Analysis.src.visualization.create_price_sma_chart import create_price_sma_chart
 from INF1002_Stock_Market_Trend_Analysis.src.visualization.create_run_direction_chart import create_run_direction_chart
+from INF1002_Stock_Market_Trend_Analysis.src.visualization.create_run_statistics_chart import create_run_statistics_chart
+from INF1002_Stock_Market_Trend_Analysis.src.visualization.create_volatility_chart import create_volatility_chart
 
 app = Flask(__name__)
 
@@ -11,6 +15,8 @@ app = Flask(__name__)
 def index():
     price_sma_chart_html = None
     run_direction_chart_html = None
+    run_statistics_chart_html = None
+    volatility_chart_html = None
     symbol = ""
     period = ""
     sma_short = ""
@@ -53,6 +59,11 @@ def index():
             # Prepare data for charts
             closing_prices = data["Close"].tolist()
             dates = data.index.strftime("%Y-%m-%d").tolist()
+            returns = daily_returns(closing_prices)
+            directions = calculate_directions(returns)
+            runs = calculate_runs(directions)
+            run_stats = analyze_runs(runs)
+            volatility = analyze_volatility(returns)
             
             # Validate SMA window sizes
             max_window = max(sma_short_int, sma_medium_int, sma_long_int)
@@ -76,14 +87,17 @@ def index():
                 'long': {'values': sma_long_padded, 'period': sma_long_int}
             }
             
+            # Create price and run direction chart
+            run_direction_chart_html = create_run_direction_chart(dates, closing_prices, returns, runs, symbol)
+            
             # Create price vs multiple SMA chart
-            price_sma_chart_html = create_price_sma_chart(dates, closing_prices, sma_data, symbol)
+            price_sma_chart_html = create_price_sma_chart(dates, closing_prices, sma_data, symbol)            
             
-            # Calculate daily returns
-            returns = daily_returns(closing_prices)
+            # Create run statistics chart
+            run_statistics_chart_html = create_run_statistics_chart(runs, run_stats)
             
-            # Create run direction chart
-            run_direction_chart_html = create_run_direction_chart(dates, closing_prices, returns, symbol)
+            volatility_chart_html = create_volatility_chart(returns, volatility)
+            
             
         except ValueError as ve:
             error_message = str(ve)
@@ -94,6 +108,8 @@ def index():
     return render_template("index.html",
                            price_sma_chart_html=price_sma_chart_html,
                            run_direction_chart_html=run_direction_chart_html,
+                           run_statistics_chart_html=run_statistics_chart_html,
+                           volatility_chart_html=volatility_chart_html,
                            symbol=symbol,
                            period=period,
                            sma_short=sma_short,

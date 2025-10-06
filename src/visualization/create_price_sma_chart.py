@@ -85,7 +85,6 @@ def create_price_sma_chart(dates, closing_prices, sma_data, symbol):
         xaxis_title='Date',
         yaxis_title='Price (USD)',
         hovermode='x unified',
-        width=1000,
         height=600,
         showlegend=True,
         legend=dict(

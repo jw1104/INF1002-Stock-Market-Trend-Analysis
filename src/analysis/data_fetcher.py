@@ -1,6 +1,17 @@
 import yfinance as yf
 
 def data_fetcher(ticker, period):
+    """
+    Fetches historical stock data using yfinance and clean it
+    
+    Args:
+        ticker: Stock ticker symbol (str)
+        period: Data period (e.g., '1y', '3mo') (str)
+        
+    Returns:
+        pd.DataFrame: Cleaned historical stock data
+    """
+    
     ticker = ticker.upper()
     period = period.lower()
     stock_data = yf.Ticker(ticker).history(period)
