@@ -28,6 +28,7 @@ def max_profit(data):
     min_price = float('inf')  # Set to infinity initially to check for min
     max_profit = 0.0  # Track the best profit opportunity found
     buy_time = sell_time = None  # Initialize buy and sell times
+    min_index = None # Track index of minimum price
     
     # O(n) - Single pass through all prices
     for i, price in enumerate(close_prices):
