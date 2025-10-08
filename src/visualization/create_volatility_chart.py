@@ -1,7 +1,7 @@
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 
-def create_volatility_chart(returns, stats):
+def create_volatility_chart(dates, returns, stats):
     """
     Create visualization for volatility analysis.
     
@@ -10,9 +10,8 @@ def create_volatility_chart(returns, stats):
         stats: Dictionary from analyze_volatility()
         
     Returns:
-        Plotly figure
+        Plotly figure html string
     """
-    clean_returns = [r for r in returns if r is not None]
     
     fig = make_subplots(
         rows=1, cols=2,
@@ -23,13 +22,14 @@ def create_volatility_chart(returns, stats):
     # Left: Returns timeline
     fig.add_trace(
         go.Scatter(
-            y=clean_returns,
+            x=dates,
+            y=returns,
             mode='lines',
             line=dict(color='purple', width=1),
             fill='tozeroy',
             fillcolor='rgba(155, 89, 182, 0.2)',
             name='Daily Returns',
-            hovertemplate='Return: %{y:.2f}%<extra></extra>'
+            hovertemplate='Return: %{y:.2f}%<br>Date: %{x}<extra></extra>'
         ),
         row=1, col=1
     )
@@ -43,11 +43,17 @@ def create_volatility_chart(returns, stats):
     # Right: Distribution histogram
     fig.add_trace(
         go.Histogram(
-            x=clean_returns,
+            x=returns,
             marker_color='orange',
             nbinsx=30,
             name='Distribution',
-            showlegend=False
+            showlegend=False,
+            hovertemplate=(
+                '<b>Return Range:</b> %{x:.1f}%<br>'
+                '<b>Frequency:</b> %{y} days<br>'
+                '<extra></extra>'
+            ),
+            histnorm=''  # Show raw counts
         ),
         row=1, col=2
     )
@@ -55,10 +61,11 @@ def create_volatility_chart(returns, stats):
     fig.update_layout(
         title_text="Volatility Analysis",
         height=600,
-        template='plotly_white'
+        template='plotly_white',
+        hovermode='closest'
     )
     
-    fig.update_xaxes(title_text="Time Period", row=1, col=1)
+    fig.update_xaxes(title_text="Date", row=1, col=1)
     fig.update_yaxes(title_text="Return (%)", row=1, col=1)
     fig.update_xaxes(title_text="Return (%)", row=1, col=2)
     fig.update_yaxes(title_text="Frequency", row=1, col=2)

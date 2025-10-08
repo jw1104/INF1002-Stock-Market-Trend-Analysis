@@ -1,6 +1,5 @@
 import yfinance as yf
 import datetime as dt
-from data_fetcher import data_fetcher
 
 def max_profit(data):
     """
@@ -68,8 +67,3 @@ def max_profit(data):
         # Raise error if no profitable trade was found (e.g., prices only declined)
         raise ValueError(f"No profit opportunity.")
     
-    
-if __name__ == "__main__":
-    data = data_fetcher("AAPL", "3y")
-    result = max_profit(data)
-    print(result)

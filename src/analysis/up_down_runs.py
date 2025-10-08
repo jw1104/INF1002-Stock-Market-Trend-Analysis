@@ -2,29 +2,29 @@ import yfinance as yf
 import pandas as pd
 
 
-def calculate_directions(price_changes):
+def calculate_directions(returns):
     """
-    Convert a list of price changes into directional indicators: 'up', 'down', 'flat'.
+    Convert a list of daily returns into directional indicators: 'up', 'down', 'flat'
     
     Args:
-        price_changes: List of daily percentage changes (can include None for missing data)
+        returns: List of daily percentage changes (can include None for missing data)
         
     Returns:
         List of directions corresponding to price changes
     """
     
-    if not price_changes:
+    if not returns:
         raise ValueError("No data for analysis")
     
     directions = []
     
-    for change in price_changes:
-        if pd.isna(change):
+    for r in returns:
+        if pd.isna(r):
             continue
         
-        if change > 0:
+        if r > 0:
             directions.append('up')
-        elif change < 0:
+        elif r < 0:
             directions.append('down')
         else:
             directions.append('flat')
@@ -80,12 +80,10 @@ def analyze_runs(runs):
     # Separate runs by direction
     upward_runs = [streak for direction, streak in runs if direction == 'up']
     downward_runs = [streak for direction, streak in runs if direction == 'down']
-    flat_runs = [streak for direction, streak in runs if direction == 'flat']
     
     # Obtain average run lengths per direction
     avg_upward = sum(upward_runs) / len(upward_runs) if upward_runs else 0
     avg_downward = sum(downward_runs) / len(downward_runs) if downward_runs else 0
-    avg_flat = sum(flat_runs) / len(flat_runs) if flat_runs else 0
     
     current_direction, current_streak = runs[-1]
     

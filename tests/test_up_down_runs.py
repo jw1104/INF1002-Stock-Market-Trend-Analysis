@@ -4,7 +4,9 @@ import numpy as np
 from INF1002_Stock_Market_Trend_Analysis.src.analysis.up_down_runs import calculate_directions, calculate_runs
 
 class TestCalculateDirections:
-    # tests for calculate_directions function
+    """
+    tests for calculate_directions function
+    """
     
     def test_mixed_price_changes(self):
         # test case for positive, negative and zero values
@@ -37,7 +39,9 @@ class TestCalculateDirections:
 
 
 class TestCalculateRuns:
-    # tests for calculate_runs function
+    """
+    tests for calculate_runs function
+    """
     
     def test_multiple_runs_mixed_directions(self):
         # test for mulitple consecutive runs of different directions
@@ -47,7 +51,6 @@ class TestCalculateRuns:
         assert result == expected
     
     def test_alternating_directions(self):
-        """Test with alternating directions (no consecutive runs)"""
         # test for alternating directions with no consecutive runs
         directions = ['up', 'down', 'up', 'flat', 'down']
         result = calculate_runs(directions)
@@ -67,3 +70,6 @@ class TestCalculateRuns:
             calculate_runs([])
             
         assert calculate_runs(['up']) == [('up', 1)]
+        
+if __name__ == '__main__':
+    pytest.main([__file__, '-v'])

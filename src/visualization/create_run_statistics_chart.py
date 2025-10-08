@@ -1,7 +1,7 @@
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 
-def create_run_statistics_chart(runs, stats):
+def create_run_statistics_chart(dates, runs, stats):
     """
     Create visualization for run statistics.
     Works directly with tuple format from calculate_runs.
@@ -11,7 +11,7 @@ def create_run_statistics_chart(runs, stats):
         stats: Dictionary from analyze_runs()
         
     Returns:
-        Plotly figure
+        Plotly figure html string
     """
     if not runs:
         raise ValueError("No run data to visualize")
@@ -39,6 +39,7 @@ def create_run_statistics_chart(runs, stats):
     # Left: Run lengths timeline
     fig.add_trace(
         go.Bar(
+            x=dates,
             y=run_values,
             marker_color=colors,
             name='Run Length',
@@ -88,7 +89,7 @@ def create_run_statistics_chart(runs, stats):
         template='plotly_white'
     )
     
-    fig.update_xaxes(title_text="Time Period", row=1, col=1)
+    fig.update_xaxes(title_text="Date", row=1, col=1)
     fig.update_yaxes(title_text="Run Length (days)", row=1, col=1)
     fig.update_yaxes(title_text="Run Length (days)", row=1, col=2)
     
