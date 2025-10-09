@@ -16,6 +16,12 @@
         .error-alert {
             margin-top: 1rem;
         }
+        .date-inputs {
+            display: none;
+        }
+        .period-input {
+            display: block;
+        }
     </style>
 </head>
 <body class="p-4">
@@ -37,15 +43,64 @@
         </div>
 
         <div class="mb-3">
+            <label class="form-label fw-bold">Date Selection Mode</label>
+            <div class="form-check">
+                <input class="form-check-input" 
+                       type="radio" 
+                       name="date_mode" 
+                       id="mode_period" 
+                       value="period" 
+                       {% if date_mode == "period" or not date_mode %}checked{% endif %}
+                       onchange="toggleDateMode()">
+                <label class="form-check-label" for="mode_period">
+                    Use Time Period (e.g., 1y, 6mo)
+                </label>
+            </div>
+            <div class="form-check">
+                <input class="form-check-input" 
+                       type="radio" 
+                       name="date_mode" 
+                       id="mode_daterange" 
+                       value="daterange" 
+                       {% if date_mode == "daterange" %}checked{% endif %}
+                       onchange="toggleDateMode()">
+                <label class="form-check-label" for="mode_daterange">
+                    Use Date Range (from - to)
+                </label>
+            </div>
+        </div>
+
+        <div id="period-container" class="mb-3 period-input">
             <label for="period" class="form-label">Period</label>
             <input type="text" 
                    id="period"
                    name="period" 
                    class="form-control" 
                    value="{{ period }}"
-                   placeholder="e.g. 1mo, 3mo, 6mo, 1y"
-                   required>
+                   placeholder="e.g. 1mo, 3mo, 6mo, 1y">
             <small class="form-text text-muted">Examples: 1mo, 3mo, 6mo, 1y, 2y, 5y, max</small>
+        </div>
+
+        <div id="daterange-container" class="date-inputs">
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label for="start_date" class="form-label">Start Date</label>
+                    <input type="date" 
+                           id="start_date"
+                           name="start_date" 
+                           class="form-control" 
+                           value="{{ start_date }}">
+                </div>
+                <div class="col-md-6">
+                    <label for="end_date" class="form-label">End Date</label>
+                    <input type="date" 
+                           id="end_date"
+                           name="end_date" 
+                           class="form-control" 
+                           value="{{ end_date }}">
+                </div>
+            </div>
+            <small class="form-text text-muted">Select the date range for analysis</small>
         </div>
 
         <div class="mb-3">
@@ -152,6 +207,36 @@
     </div>
     {% endif %}
 </div>
+
+<script>
+    function toggleDateMode() {
+        const periodMode = document.getElementById('mode_period').checked;
+        const periodContainer = document.getElementById('period-container');
+        const daterangeContainer = document.getElementById('daterange-container');
+        const periodInput = document.getElementById('period');
+        const startDateInput = document.getElementById('start_date');
+        const endDateInput = document.getElementById('end_date');
+        
+        if (periodMode) {
+            periodContainer.style.display = 'block';
+            daterangeContainer.style.display = 'none';
+            periodInput.required = true;
+            startDateInput.required = false;
+            endDateInput.required = false;
+        } else {
+            periodContainer.style.display = 'none';
+            daterangeContainer.style.display = 'block';
+            periodInput.required = false;
+            startDateInput.required = true;
+            endDateInput.required = true;
+        }
+    }
+    
+    // Initialize on page load
+    document.addEventListener('DOMContentLoaded', function() {
+        toggleDateMode();
+    });
+</script>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>

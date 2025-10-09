@@ -20,6 +20,9 @@ def index():
     volatility_chart_html = None
     symbol = ""
     period = ""
+    start_date = ""
+    end_date = ""
+    date_mode = "period"
     sma_short = ""
     sma_medium = ""
     sma_long = ""
@@ -27,7 +30,10 @@ def index():
 
     if request.method == "POST":
         symbol = request.form.get("symbol", "").upper()
+        date_mode = request.form.get("date_mode", "period")
         period = request.form.get("period", "").lower()
+        start_date = request.form.get("start_date", "")
+        end_date = request.form.get("end_date", "")
         sma_short = request.form.get("sma_short", "")
         sma_medium = request.form.get("sma_medium", "")
         sma_long = request.form.get("sma_long", "")
@@ -36,8 +42,16 @@ def index():
             # Validate inputs
             if not symbol:
                 raise ValueError("Stock symbol is required")
-            if not period:
-                raise ValueError("Period is required")
+            
+            if date_mode == "period":
+                if not period:
+                    raise ValueError("Period is required")
+            else:  # date_mode == "daterange"
+                if not start_date or not end_date:
+                    raise ValueError("Both start and end dates are required")
+                if start_date >= end_date:
+                    raise ValueError("Start date must be before end date")
+            
             if not sma_short or not sma_medium or not sma_long:
                 raise ValueError("All SMA windows are required")
             
@@ -51,8 +65,11 @@ def index():
             if not (sma_short_int < sma_medium_int < sma_long_int):
                 raise ValueError("SMA windows must be in ascending order (Short < Medium < Long)")
             
-            # Fetch stock data
-            data = data_fetcher(symbol, period)
+            # Fetch stock data based on mode
+            if date_mode == "period":
+                data = data_fetcher(symbol, period=period)
+            else:
+                data = data_fetcher(symbol, start_date=start_date, end_date=end_date)
             
             if data is None or data.empty:
                 raise ValueError(f"No data found for symbol {symbol}")
@@ -114,6 +131,9 @@ def index():
                            volatility_chart_html=volatility_chart_html,
                            symbol=symbol,
                            period=period,
+                           start_date=start_date,
+                           end_date=end_date,
+                           date_mode=date_mode,
                            sma_short=sma_short,
                            sma_medium=sma_medium,
                            sma_long=sma_long,

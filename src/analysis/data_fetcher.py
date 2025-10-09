@@ -1,20 +1,30 @@
 import yfinance as yf
 
-def data_fetcher(ticker, period):
+def data_fetcher(ticker, period=None, start_date=None, end_date=None):
     """
-    Fetches historical stock data using yfinance and clean it
+    Fetches historical stock data using yfinance and cleans it, takes
+    either time period or start and end dates
     
     Args:
         ticker: Stock ticker symbol (str)
         period: Data period (e.g., '1y', '3mo') (str)
+        start_date: Start date for data (str, 'YYYY-MM-DD')
+        end_date: End date for data (str, 'YYYY-MM-DD')
         
     Returns:
         pd.DataFrame: Cleaned historical stock data
     """
     
     ticker = ticker.upper()
-    period = period.lower()
-    stock_data = yf.Ticker(ticker).history(period)
+    
+    if start_date and end_date:
+        stock_data = yf.Ticker(ticker).history(start=start_date, end=end_date)
+    elif period:
+        period = period.lower()
+        stock_data = yf.Ticker(ticker).history(period=period)
+    else:
+        raise ValueError("Either period or both start_date and end_date must be provided")
+    
     cleaned_data = clean_data(stock_data)
     
     return cleaned_data
