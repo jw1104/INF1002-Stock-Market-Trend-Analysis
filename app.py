@@ -39,14 +39,13 @@ def index():
         sma_long = request.form.get("sma_long", "")
 
         try:
-            # Validate inputs
             if not symbol:
                 raise ValueError("Stock symbol is required")
             
             if date_mode == "period":
                 if not period:
                     raise ValueError("Period is required")
-            else:  # date_mode == "daterange"
+            else:
                 if not start_date or not end_date:
                     raise ValueError("Both start and end dates are required")
                 if start_date >= end_date:
@@ -65,7 +64,7 @@ def index():
             if not (sma_short_int < sma_medium_int < sma_long_int):
                 raise ValueError("SMA windows must be in ascending order (Short < Medium < Long)")
             
-            # Fetch stock data based on mode
+           
             if date_mode == "period":
                 data = data_fetcher(symbol, period=period)
             else:
@@ -74,7 +73,7 @@ def index():
             if data is None or data.empty:
                 raise ValueError(f"No data found for symbol {symbol}")
             
-            # Prepare data for charts
+            
             closing_prices = data["Close"].tolist()
             dates = data.index.strftime("%Y-%m-%d").tolist()
             returns = daily_returns(closing_prices)
@@ -84,37 +83,27 @@ def index():
             max_profit_data = max_profit(data)
             volatility = analyze_volatility(returns)
             
-            # Validate SMA window sizes
             max_window = max(sma_short_int, sma_medium_int, sma_long_int)
             if max_window > len(closing_prices):
                 raise ValueError(f"Largest SMA window ({max_window}) cannot be larger than data length ({len(closing_prices)})")
             
-            # Calculate multiple SMAs
             sma_short_values = simple_moving_average(closing_prices, sma_short_int)
             sma_medium_values = simple_moving_average(closing_prices, sma_medium_int)
             sma_long_values = simple_moving_average(closing_prices, sma_long_int)
             
-            # Pad SMA values to match dates length
             sma_short_padded = [None] * (sma_short_int - 1) + sma_short_values
             sma_medium_padded = [None] * (sma_medium_int - 1) + sma_medium_values
             sma_long_padded = [None] * (sma_long_int - 1) + sma_long_values
             
-            # Create dictionary of SMA data
             sma_data = {
                 'short': {'values': sma_short_padded, 'period': sma_short_int},
                 'medium': {'values': sma_medium_padded, 'period': sma_medium_int},
                 'long': {'values': sma_long_padded, 'period': sma_long_int}
             }
             
-            # Create price over time chart with run directions and max profit
             price_chart_html = create_price_chart(dates, closing_prices, returns, runs, symbol, max_profit_data)
-            
-            # Create price vs multiple SMA chart
             price_sma_chart_html = create_price_sma_chart(dates, closing_prices, sma_data, symbol)            
-            
-            # Create run statistics chart
             run_statistics_chart_html = create_run_statistics_chart(dates, runs, run_stats)
-            
             volatility_chart_html = create_volatility_chart(dates, returns, volatility)
             
             

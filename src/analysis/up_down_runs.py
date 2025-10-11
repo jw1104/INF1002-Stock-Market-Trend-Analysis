@@ -52,13 +52,13 @@ def calculate_runs(directions):
     
     for i in range(1, len(directions)):
         if directions[i] == current_direction:
-            run_streak += 1 # Increment current run streak
+            run_streak += 1
         else:
-            runs.append((current_direction, run_streak)) # End of current run streak
-            current_direction = directions[i] # Change in direction
-            run_streak = 1 # Reset current run streak
+            runs.append((current_direction, run_streak))
+            current_direction = directions[i]
+            run_streak = 1
     
-    runs.append((current_direction, run_streak)) # Append the last run
+    runs.append((current_direction, run_streak))
     
     return runs
 

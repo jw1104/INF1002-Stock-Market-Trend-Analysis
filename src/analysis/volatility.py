@@ -9,21 +9,17 @@ def analyze_volatility(returns):
         dict: Key volatility statistics
     """
     
-    # Remove None values
     clean_returns = [r for r in returns if r is not None]
     
     if not clean_returns:
         return None
     
-    # Calculate average return
     avg_return = sum(clean_returns) / len(clean_returns)
     
-    # Calculate standard deviation (volatility)
     squared_diffs = [(r - avg_return) ** 2 for r in clean_returns]
     variance = sum(squared_diffs) / len(squared_diffs)
     daily_vol = variance ** 0.5
     
-    # Annualized volatility (daily vol * sqrt(252 trading days))
     annual_vol = daily_vol * (252 ** 0.5)
     
     return {
