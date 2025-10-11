@@ -41,7 +41,7 @@ def clean_data(data):
         List of clean data
         
     Raises:
-        ValueError: If insufficient data after cleaning
+        ValueError: no data or insufficient data after cleaning
     """
     
     if data is None or data.empty:

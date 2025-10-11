@@ -3,7 +3,7 @@ def simple_moving_average(closing_prices, window_size):
     Calculate the Simple Moving Average (SMA) for a given window size.
     
     Args:
-        closing_prices: List or Series of closing prices
+        closing_prices: List of closing prices
         window_size: Integer representing the number of periods for the moving average
         
     Returns:

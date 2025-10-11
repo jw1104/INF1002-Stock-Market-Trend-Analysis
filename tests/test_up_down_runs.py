@@ -1,7 +1,7 @@
 import pytest
 import pandas as pd
 import numpy as np
-from INF1002_Stock_Market_Trend_Analysis.src.analysis.up_down_runs import calculate_directions, calculate_runs
+from INF1002_Stock_Market_Trend_Analysis.src.analysis.up_down_runs import calculate_directions, calculate_runs, analyze_runs
 
 class TestCalculateDirections:
     """
@@ -70,6 +70,62 @@ class TestCalculateRuns:
             calculate_runs([])
             
         assert calculate_runs(['up']) == [('up', 1)]
+        
+        
+class TestAnalyzeRuns:
+    """Test suite for analyze_runs function"""
+    
+    def test_mixed_runs_calculation(self):
+        # test case for mixed upward and downward runs
+        runs = [
+            ('up', 3),
+            ('down', 2),
+            ('up', 5),
+            ('down', 4),
+            ('up', 2)
+        ]
+        result = analyze_runs(runs)
+        
+        assert result["avg_upward_run"] == 3.3
+        assert result["avg_downward_run"] == 3.0
+        assert result["max_upward_run"] == 5
+        assert result["max_downward_run"] == 4
+        assert result["current_run"] == 2
+        assert result["current_run_type"] == 'up'
+    
+    def test_only_upward_runs(self):
+        # test when all runs are one direction
+        runs = [
+            ('up', 4),
+            ('up', 6),
+            ('up', 2)
+        ]
+        result = analyze_runs(runs)
+        
+        assert result["avg_upward_run"] == 4.0
+        assert result["avg_downward_run"] == 0
+        assert result["max_upward_run"] == 6
+        assert result["max_downward_run"] == 0
+        assert result["current_run"] == 2
+        assert result["current_run_type"] == 'up'
+    
+    def test_single_run(self):
+        # test with only one run
+        runs = [('up', 5)]
+        result = analyze_runs(runs)
+        
+        assert result["avg_upward_run"] == 5.0
+        assert result["avg_downward_run"] == 0
+        assert result["max_upward_run"] == 5
+        assert result["max_downward_run"] == 0
+        assert result["current_run"] == 5
+        assert result["current_run_type"] == 'up'
+    
+    def test_empty_runs_raises_error(self):
+        #Test that empty runs list raises ValueError
+        with pytest.raises(ValueError, match="No run data provided"):
+            analyze_runs([])
+
         
 if __name__ == '__main__':
     pytest.main([__file__, '-v'])
