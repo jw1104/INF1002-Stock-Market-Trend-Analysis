@@ -1,4 +1,4 @@
-INF1002 P15-3
+INF1002 P15-3  
 Stock Market Trend Analysis
 
 1. Clone repository
