@@ -1,7 +1,7 @@
 INF1002 P15-3  
 Stock Market Trend Analysis
 
-1. Clone repository
+1. Clone repository  
    git clone https://github.com/yourusername/INF1002_Stock_Market_Trend_Analysis.git  
    cd INF1002_Stock_Market_Trend_Analysis  
 
