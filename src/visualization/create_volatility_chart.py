@@ -59,7 +59,7 @@ def create_volatility_chart(dates, returns, stats):
     )
     
     fig.update_layout(
-        title_text="Volatility Analysis",
+        title_text = f"Volatility Analysis ({stats['volatility_level']})",
         height=600,
         template='plotly_white',
         hovermode='closest'
