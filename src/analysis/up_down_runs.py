@@ -52,13 +52,13 @@ def calculate_runs(directions):
     
     for i in range(1, len(directions)):
         if directions[i] == current_direction:
-            run_streak += 1 # Increment current run streak
+            run_streak += 1
         else:
-            runs.append((current_direction, run_streak)) # End of current run streak
-            current_direction = directions[i] # Change in direction
-            run_streak = 1 # Reset current run streak
+            runs.append((current_direction, run_streak))
+            current_direction = directions[i]
+            run_streak = 1
     
-    runs.append((current_direction, run_streak)) # Append the last run
+    runs.append((current_direction, run_streak))
     
     return runs
 
@@ -77,11 +77,9 @@ def analyze_runs(runs):
     if not runs:
         raise ValueError("No run data provided")
     
-    # Separate runs by direction
     upward_runs = [streak for direction, streak in runs if direction == 'up']
     downward_runs = [streak for direction, streak in runs if direction == 'down']
     
-    # Obtain average run lengths per direction
     avg_upward = sum(upward_runs) / len(upward_runs) if upward_runs else 0
     avg_downward = sum(downward_runs) / len(downward_runs) if downward_runs else 0
     

@@ -5,7 +5,7 @@ def daily_returns(closing_prices):
     Calculate the daily percentage returns based on closing prices.
    
     Args:
-        closing_prices: Series of closing prices
+        closing_prices: list of closing prices
        
     Returns:
         list: List containing percentage changes as numeric values
