@@ -77,11 +77,9 @@ def analyze_runs(runs):
     if not runs:
         raise ValueError("No run data provided")
     
-    # Separate runs by direction
     upward_runs = [streak for direction, streak in runs if direction == 'up']
     downward_runs = [streak for direction, streak in runs if direction == 'down']
     
-    # Obtain average run lengths per direction
     avg_upward = sum(upward_runs) / len(upward_runs) if upward_runs else 0
     avg_downward = sum(downward_runs) / len(downward_runs) if downward_runs else 0
     
