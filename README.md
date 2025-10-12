@@ -5,7 +5,7 @@ Stock Market Trend Analysis
    git clone https://github.com/yourusername/INF1002_Stock_Market_Trend_Analysis.git  
    cd INF1002_Stock_Market_Trend_Analysis  
 
-2. Create virtual environment (Recommended but optional)  
+2. Create virtual environment (Optional but recommended)  
    python -m venv venv  
    venv\Scripts\activate  
 
